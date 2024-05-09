@@ -1,0 +1,16 @@
+name: ""
+params: {}
+url: ${url}/sessions/${session_id}/balance/${account_id}
+method: GET
+headers: {}
+authentication:
+    bearer:
+        token: ""
+    type: bearer
+body:
+    bodytype: JSON
+    contents: ""
+variabledefaults:
+    account_id: ""
+    session_id: 3e9eefd8-dd4a-4d38-a010-f97d4e4a3192
+    url: ""

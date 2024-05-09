@@ -1,0 +1,23 @@
+name: ""
+params: {}
+url: ${url}/sessions/${session_id}/transfer
+method: POST
+headers: {}
+authentication:
+    bearer:
+        token: ""
+    type: bearer
+body:
+    bodytype: JSON
+    contents: |-
+        {
+            "sender": ${from_account_id},
+            "receiver": ${to_account_id},
+            "amount": "${amount}"
+        }
+variabledefaults:
+    amount: ""
+    from_account_id: ""
+    session_id: 3e9eefd8-dd4a-4d38-a010-f97d4e4a3192
+    to_account_id: ""
+    url: ""

@@ -1,0 +1,15 @@
+name: ""
+params: {}
+url: ${url}/balance/${account_id}
+method: GET
+headers: {}
+authentication:
+    bearer:
+        token: ""
+    type: bearer
+body:
+    bodytype: JSON
+    contents: ""
+variabledefaults:
+    account_id: ""
+    url: ""

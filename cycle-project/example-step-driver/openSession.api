@@ -1,0 +1,22 @@
+name: ""
+params: {}
+url: ${url}/sessions
+method: POST
+headers: {}
+authentication:
+    bearer:
+        token: ""
+    type: bearer
+body:
+    bodytype: JSON
+    contents: |-
+        {
+            "url": "${db_url}",
+            "username": "${db_user}",
+            "password": "${db_pass}"
+        }
+variabledefaults:
+    db_pass: ""
+    db_url: ""
+    db_user: ""
+    url: ""

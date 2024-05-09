@@ -1,0 +1,59 @@
+openapi: "3.0.0"
+info:
+  title: Database Step Driver API
+  version: "1.0.0"
+paths:
+  /transfer:
+    post:
+      summary: Transfer funds between accounts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransferRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransferResponse'
+  /get_balance:
+    get:
+      summary: Retrieve account balance
+      parameters:
+        - in: query
+          name: account_id
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BalanceResponse'
+components:
+  schemas:
+    TransferRequest:
+      type: object
+      properties:
+        sender:
+          type: integer
+        receiver:
+          type: integer
+        amount:
+          type: number
+    TransferResponse:
+      type: object
+      properties:
+        message:
+          type: string
+    BalanceResponse:
+      type: object
+      properties:
+        balance:
+          type: string

@@ -1,0 +1,142 @@
+openapi: 3.0.3
+info:
+  title: Example Step Driver For PostgreSQL Stored Procedures
+  description: |-
+    This is an example step driver used to teach the process for creating and consuming a step driver.
+    This example will use managing DB connections and calling stored procedures and functions to illustrate
+    the process.
+  termsOfService: https://www.example.com/terms-of-service
+  contact:
+    email: apiteam@example.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 0.1.0
+externalDocs:
+  description: Find out more
+  url: https://cyclelabs.com/docs
+servers:
+  - url: https://petstore3.swagger.io/api/v3
+tags:
+  - name: sessions
+    description: Start and end sessions
+    externalDocs:
+      description: Find out more
+      url: http://cyclelabs.io
+  - name: accounts
+    description: Perform operations against accounts
+    externalDocs:
+      description: Find out more
+      url: http://cyclelabs.io
+paths:
+  /transfer:
+    post:
+      tags:
+        - accounts
+      summary: Execute a transfer
+      description: Execute a tranfer of funds from from account to another
+      operationId: transfer
+      requestBody:
+        description: Attributes of a monetary transfer
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Transfer'
+        required: true
+      responses:
+        '200':
+          description: Step Executed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StepResponse'
+        '400':
+          description: Bad requestBody
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+  /balance/{accountID}:
+    parameters:
+        - name: accountID
+          in: path
+          description: account ID
+          required: true
+          schema:
+            type: integer
+    get:
+      tags:
+        - accounts
+      summary: Return the account balance
+      description: Return the account balance for the specified account
+      operationId: getBalance
+      responses:
+        '200':
+          description: Step Executed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StepResponse'
+components:
+  schemas:
+    ErrorMessage:
+      required:
+        - message
+      description: An error message for a bad request.
+      type: object
+      properties:
+        message:
+          description: The error message.
+          type: string
+    StepResponse:
+      required:
+        - status
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - pass
+            - fail
+        variables:
+          type: object
+          additionalProperties:
+            oneOf:
+              - type: string
+              - type: integer
+              - type: number
+              - type: boolean
+          nullable: true
+        message:
+          type: string
+          nullable: true
+        errorMessage:
+          type: string
+          nullable: true
+    MonetaryValue: # See https://github.com/belgif/openapi-money/blob/master/src/main/openapi/money/v1/money-v1.yaml
+      description: The numerical part of a monetary amount in decimal notation. Negative values are allowed.
+      type: string   # string conserves decimal precision
+      format: number # number is a custom string format that is supported by some, but not all tooling
+      pattern: '^(\-|\+)?((\d+(\.\d*)?)|(\.\d+))$'  # Variable number of digits, with at least one digit required, before or after the decimal point. Allows both positive and negative values.
+      x-examples:
+      - "100.234567"
+      - "010"
+      - "-.05"
+      - "+1"
+      - "10"
+      - "100." 
+    Transfer:
+      required:
+        - sender
+        - receiver
+        - amount
+      type: object
+      properties:
+        sender:
+          type: integer
+          example: list shipments
+        receiver:
+          type: integer
+          example: list shipments
+        amount:
+          $ref: '#/components/schemas/MonetaryValue'

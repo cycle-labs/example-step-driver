@@ -1,0 +1,14 @@
+name: ""
+params: {}
+url: ${url}/shutdown
+method: DELETE
+headers: {}
+authentication:
+    bearer:
+        token: ""
+    type: bearer
+body:
+    bodytype: JSON
+    contents: ""
+variabledefaults:
+    url: ""

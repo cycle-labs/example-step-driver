@@ -1,0 +1,22 @@
+name: ""
+params: {}
+url: ${url}/transfer
+method: POST
+headers: {}
+authentication:
+    bearer:
+        token: ""
+    type: bearer
+body:
+    bodytype: JSON
+    contents: |-
+        {
+            "sender": ${from_account_id},
+            "receiver": ${to_account_id},
+            "amount": "${amount}"
+        }
+variabledefaults:
+    amount: ""
+    from_account_id: ""
+    to_account_id: ""
+    url: ""

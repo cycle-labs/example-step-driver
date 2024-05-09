@@ -1,0 +1,232 @@
+openapi: 3.0.3
+info:
+  title: Exanple Step Driver For PostgreSQL Stored Procedures
+  description: |-
+    This is an example step driver used to teach the process for creating and consuming a step driver.
+    This example will use managing DB connections and calling stored procedures and functions to illustrate
+    the process.
+  termsOfService: https://www.example.com/terms-of-service
+  contact:
+    email: apiteam@example.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 0.1.0
+externalDocs:
+  description: Find out more
+  url: https://cyclelabs.com/docs
+servers:
+  - url: https://petstore3.swagger.io/api/v3
+tags:
+  - name: sessions
+    description: Start and end sessions
+    externalDocs:
+      description: Find out more
+      url: http://cyclelabs.io
+  - name: accounts
+    description: Perform opeerations against accounts
+    externalDocs:
+      description: Find out more about our store
+      url: http://cyclelabs.io
+paths:
+  /sessions:
+    post:
+      tags:
+        - sessions
+      summary: Create a new session
+      description: Open a database connection and create a new session
+      operationId: login
+      requestBody:
+        description: Login Parameters
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Login'
+        required: true
+      responses:
+        '201':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '422':
+          description: Validation exception
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+  /sessions/{sessionID}:
+    parameters:
+        - name: sessionID
+          in: path
+          description: driver session ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+    delete:
+      tags:
+        - sessions
+      summary: End the session
+      description: Close the database connection and end the session
+      operationId: logout
+      responses:
+        '204':
+          description: Successful operation
+        '404':
+          description: Session not found
+  /sessions/{sessionID}/transfer:
+    parameters:
+        - name: sessionID
+          in: path
+          description: driver session ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+    post:
+      tags:
+        - accounts
+      summary: Execute a transfer
+      description: Execute a tranfer of funds from from account to another
+      operationId: transfer
+      requestBody:
+        description: Attributes of a monetary transfer
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Transfer'
+        required: true
+      responses:
+        '200':
+          description: Step Executed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StepResponse'
+        '404':
+          description: Session not found
+  /sessions/{sessionID}/balance/{accountID}:
+    parameters:
+        - name: sessionID
+          in: path
+          description: driver session ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: accountID
+          in: path
+          description: account ID
+          required: true
+          schema:
+            type: integer
+    get:
+      tags:
+        - accounts
+      summary: Return the account balance
+      description: Return the account balance for the specified account
+      operationId: getBalance
+      responses:
+        '200':
+          description: Step Executed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StepResponse'
+        '404':
+          description: Session not found
+
+components:
+  schemas:
+    Login:
+      required:
+        - url
+        - username
+        - password
+      type: object
+      properties:
+        url:
+          type: string
+          example: 'localhost:5757'
+        username:
+          type: string
+          example: 'user1'
+        password:
+          type: string
+          format: password
+          example: 'password1'
+    LoginResponse:
+      required:
+        - sessionID
+      type: object
+      properties:
+        sessionID:
+          type: string
+          format: uuid
+          example: '1e6bfdb1-2404-4f3f-b815-97dbff0fc5b2'
+    ErrorMessage:
+      required:
+        - message
+      description: An error message for a bad request.
+      type: object
+      properties:
+        message:
+          description: The error message.
+          type: string
+    ExecutionStatus:
+      type: string
+      enum:
+        - pass
+        - fail
+      description: >
+        Execution Status:
+        * `pass` - The step executed successfully
+        * `fail` - The step failed due to a variety of reasons which may include but not limited to failed expectations, invalid preconditions, timeouts, etc.
+    StepResponse:
+      required:
+        - status
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/ExecutionStatus'
+        variables:
+          type: object
+          additionalProperties:
+            oneOf:
+              - type: string
+              - type: integer
+              - type: number
+              - type: boolean
+          nullable: true
+        errorMessage:
+          type: string
+          nullable: true
+    MonetaryValue: # See https://github.com/belgif/openapi-money/blob/master/src/main/openapi/money/v1/money-v1.yaml
+      description: The numerical part of a monetary amount in decimal notation. Negative values are allowed.
+      type: string   # string conserves decimal precision
+      format: number # number is a custom string format that is supported by some, but not all tooling
+      pattern: '^(\-|\+)?((\d+(\.\d*)?)|(\.\d+))$'  # Variable number of digits, with at least one digit required, before or after the decimal point. Allows both positive and negative values.
+      x-examples:
+      - "100.234567"
+      - "010"
+      - "-.05"
+      - "+1"
+      - "10"
+      - "100." 
+    Transfer:
+      required:
+        - sender
+        - receiver
+        - amount
+      type: object
+      properties:
+        sender:
+          type: integer
+          example: list shipments
+        receiver:
+          type: integer
+          example: list shipments
+        amount:
+          $ref: '#/components/schemas/MonetaryValue'
